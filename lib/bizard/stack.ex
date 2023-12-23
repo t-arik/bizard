@@ -15,12 +15,29 @@ defmodule Bizard.Stack do
     %Stack{first_card: card, trump: :none}
   end
 
+  def new(card = Card.wizard()) do
+    %Stack{first_card: card, trump: :none}
+  end
+
   def new(card = %Card{color: color}) do
     %Stack{first_card: card, trump: color}
   end
 
-  def new(card = Card.wizard(), color) do
-    %Stack{first_card: card, trump: color}
+  def set_trump(stack = %Stack{first_card: Card.wizard()}, trump) do
+    # TODO check if trump color is valid e.g. :red, :blue, ...
+    %Stack{stack | trump: trump}
+  end
+
+  def has_trump?(%Stack{trump: :none}) do
+    false
+  end
+
+  def has_trump?(%Stack{}) do
+    true
+  end
+
+  def play(%Stack{first_card: Card.wizard(), trump: :none}) do
+    raise "The first card is a wizard. Choose a trump before playing"
   end
 
   def play(stack = %Stack{trump: :none}, card = %Card{})

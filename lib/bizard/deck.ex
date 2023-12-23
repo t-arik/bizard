@@ -2,6 +2,7 @@ defmodule Bizard.Deck do
   alias Bizard.Card
   require Bizard.Card
 
+  @spec new() :: [%Card{}]
   def new() do
     colors = [
       Card.red(),

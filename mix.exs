@@ -21,6 +21,7 @@ defmodule Bizard.MixProject do
 
   defp deps do
     [
+      {:plug_cowboy, "~> 2.6.1"}
     ]
   end
 end
