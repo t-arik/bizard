@@ -16,10 +16,12 @@ defmodule StackTest do
     assert stack.trump == :none
   end
 
-  test "chosen color if first card is wizard" do
+  test "chosen trump if first card is wizard" do
     card = Card.wizard()
-    stack = Stack.new(card, :blue)
-    assert stack.trump == :blue
+    stack = Stack.new(card)
+    assert stack.trump == :none
+    stack = Stack.set_trump(stack, :red)
+    assert stack.trump == :red
   end
 
   test "wizard always wins" do

@@ -8,7 +8,12 @@ defmodule Bizard.Player do
     %Player{name: name}
   end
 
-  def give_card(player = %Player{}, card = %Card{})  do
-    %Player{player | hand: [card | player.hand]}
+  @spec set_hand(%Player{}, [%Card{}]) :: %Player{}
+  def set_hand(player = %Player{}, cards) do
+    %Player{player | hand: cards}
+  end
+
+  def remove_card(player = %Player{}, card = %Card{}) do
+    %Player{player | hand: Enum.reject(player.hand, &(&1 == card))}
   end
 end
