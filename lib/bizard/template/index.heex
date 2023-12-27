@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<title></title>
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      :root {
+      --text: #000;
+      --bg: #fff;
+      }
+
+      body {
+      background-color: var(--bg);
+      color: var(--text);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+        --text: #fff;
+        --bg: #1e1e1e;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <%= content %>
+  </body>
+
+</html>
