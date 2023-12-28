@@ -33,7 +33,7 @@ defmodule Bizard.Stack do
   end
 
   def play(stack = %Stack{to_serve: :none}, card = %Card{})
-    when card not in [Card.wizard(), Card.jester()] do
+      when card not in [Card.wizard(), Card.jester()] do
     stack = %Stack{stack | to_serve: card.suit}
     play(stack, card)
   end
