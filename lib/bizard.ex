@@ -1,5 +1,6 @@
 defmodule Bizard do
   alias Bizard.Player
+
   defstruct [
     :stack,
     players: [],

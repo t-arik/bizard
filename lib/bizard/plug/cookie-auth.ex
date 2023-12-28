@@ -6,15 +6,14 @@ defmodule Bizard.Plug.CookieAuth do
   end
 
   # TODO make redirect an option instead of hardcoded
-  def call(conn, _opts) do
+  def call(conn, redirect: url, required_cookie: cookie) do
     conn = fetch_cookies(conn)
-    IO.inspect(conn.cookies)
 
-    if Map.get(conn.cookies, "user") do
+    if Map.get(conn.cookies, cookie) do
       conn
     else
       conn
-      |> put_resp_header("location", "/new")
+      |> put_resp_header("location", url)
       |> send_resp(302, "")
       |> halt()
     end

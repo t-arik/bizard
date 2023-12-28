@@ -2,31 +2,33 @@
 <html lang="en">
 
 <head>
-<title></title>
-<meta charset="UTF-8">
+  <title></title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-      :root {
+  <style>
+    :root {
       --text: #000;
       --bg: #fff;
-      }
+    }
 
-      body {
+    body {
       background-color: var(--bg);
       color: var(--text);
-      }
+    }
 
-      @media (prefers-color-scheme: dark) {
-        :root {
+    @media (prefers-color-scheme: dark) {
+      :root {
         --text: #fff;
         --bg: #1e1e1e;
-        }
       }
-    </style>
-  </head>
+    }
+  </style>
+  <!-- TODO avoid CDN -->
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
 
-  <body>
-    <%= content %>
-  </body>
+<body hx-boost="true">
+  <%= content %>
+</body>
 
 </html>

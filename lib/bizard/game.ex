@@ -75,13 +75,14 @@ defmodule Bizard.Game do
     trump = stack.trump
     to_serve = stack.to_serve
 
-    moves = Enum.filter(player.hand, fn
-      Card.wizard() -> true
-      Card.jester() -> true
-      %Card{suit: ^trump} -> true
-      %Card{suit: ^to_serve} -> true
-      _ -> false
-    end)
+    moves =
+      Enum.filter(player.hand, fn
+        Card.wizard() -> true
+        Card.jester() -> true
+        %Card{suit: ^trump} -> true
+        %Card{suit: ^to_serve} -> true
+        _ -> false
+      end)
 
     if Enum.empty?(moves), do: player.hand, else: moves
   end

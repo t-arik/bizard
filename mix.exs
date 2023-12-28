@@ -5,7 +5,7 @@ defmodule Bizard.MixProject do
     [
       app: :bizard,
       version: "0.1.0",
-      elixir: "~> 1.15",
+      elixir: "~> 1.16",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -21,8 +21,7 @@ defmodule Bizard.MixProject do
 
   defp deps do
     [
-      {:plug_cowboy, "~> 2.6.1"},
-      {:websock_adapter, "~> 0.5.5"}
+      {:plug_cowboy, "~> 2.6.1"}
     ]
   end
 end
