@@ -2,10 +2,10 @@
 # TODO check for XSS
 # TODO use CSRFProtection
 defmodule Bizard.Webserver do
-  use Agent
   use Plug.Router
 
   def init(opts) do
+    # TODO why does this work?
     {:ok, _} = Agent.start_link(fn -> Bizard.Game.new() end, name: __MODULE__)
     super(opts)
   end
@@ -17,18 +17,20 @@ defmodule Bizard.Webserver do
   plug(:update_game_state)
 
   defp provide_game_state(conn, _opts) do
-    game = Agent.get(__MODULE__, &(&1))
+    game = Agent.get(__MODULE__, & &1)
     Bizard.Plug.Conn.set_game(conn, game)
   end
 
   defp update_game_state(conn, _opts) do
     game = conn.assigns[:game]
     Agent.update(__MODULE__, fn _ -> game end)
+    Bizard.SSE.publish("game-update")
     IO.inspect(game)
     conn
   end
 
   forward("/register", to: Bizard.Plug.Register)
+  forward("/events", to: Bizard.Plug.SSE)
   forward("/", to: Bizard.Plug.Game)
 end
 
@@ -42,7 +44,10 @@ defmodule Bizard.Application do
 
     webserver = {
       Plug.Cowboy,
-      plug: Bizard.Webserver, scheme: :http, options: [port: port]
+      plug: Bizard.Webserver,
+      scheme: :http,
+      options: [port: port],
+      protocol_options: [idle_timeout: :infinity]
     }
 
     children = [webserver]

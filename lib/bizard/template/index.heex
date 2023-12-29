@@ -27,7 +27,7 @@
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 </head>
 
-<body hx-boost="true">
+<body hx-boost="true" hx-sse="connect:/events" hx-get="sse:game-update">
   <%= content %>
 </body>
 

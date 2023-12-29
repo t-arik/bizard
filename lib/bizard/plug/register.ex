@@ -17,10 +17,10 @@ defmodule Bizard.Plug.Register do
     name = Map.get(conn.body_params, "name")
 
     if name != nil do
-      game = get_game(conn)
-      player = Bizard.Player.new(name)
+      player = name |> Plug.HTML.html_escape() |> Bizard.Player.new()
+
       conn
-      |> set_game(Game.add_player(game, player))
+      |> set_game(Game.add_player(get_game(conn), player))
       |> put_resp_cookie("user-id", name)
       |> put_resp_header("location", "/")
       |> send_resp(302, "")
