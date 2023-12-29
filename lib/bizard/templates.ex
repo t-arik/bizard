@@ -17,6 +17,7 @@ defmodule Bizard.Templates do
   EEx.function_from_file(
     :def,
     :game,
-    "lib/bizard/template/game.heex"
+    "lib/bizard/template/game.heex",
+    [:game]
   )
 end

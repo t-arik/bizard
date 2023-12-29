@@ -1,16 +1,26 @@
 <div>
-  <h1>Round 2</h1>
+  <h1>Round <%= game.round %></h1>
+  <hr>
   <ol>
-    <li>Player 1: bet: 2, 0 points</li>
-    <li>Player 2: bet: 1, 0 points</li>
+    <%= for player <- game.players do %>
+    <li>
+      <%= player.name %>, points: <%= player.points %>
+      <%= if player.bet != nil do %><%= ", " <> player.bet %><% end %>
+    </li>
+    <% end %>
   </ol>
   <hr>
   <div>
-    Current Stack Trump: red
-    <ol>
-      <li>Red 12 (Player 1)</li>
-      <li>Blue 12 (Player 2)</li>
-    </ol>
+    <%= if game.stack != nil do %>
+      Current Stack Trump: <%= Atom.to_string(game.stack.trump) %>
+      <ol>
+        <%= for card <- game.stack.current_trick do %>
+          <li><%= Bizard.Card.to_string(card) %></li>
+        <% end %>
+        <li>Red 12 (Player 1)</li>
+        <li>Blue 12 (Player 2)</li>
+      </ol>
+    <% end %>
   </div>
   <div>
     <button type="submit">Red 1</button>

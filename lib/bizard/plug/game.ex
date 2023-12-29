@@ -8,12 +8,17 @@ defmodule Bizard.Plug.Game do
     redirect: "/register",
     required_cookie: "user-id"
   )
+
   plug(:match)
   plug(:dispatch)
 
   get "/" do
-    conn
-    |> send_resp(200, Templates.index(Templates.game()))
+    send_resp(conn,
+      200,
+      conn
+      |> Bizard.Plug.Conn.get_game()
+      |> Templates.game()
+      |> Templates.index()
+    )
   end
 end
-
