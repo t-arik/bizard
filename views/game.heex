@@ -1,31 +1,60 @@
-<div hx-ext="sse" sse-connect="/events" hx-get="/">
-  <h1>Round <%= game.round %></h1>
+<div hx-get="." hx-trigger="sse:game-update">
+  <%= if game.state == :ready do %>
+    <button type="submit" hx-put="/game/start">Start</button>
+  <% else %>
+    
+  <% end %>
+  <h2>Round <%= game.round %></h1>
+  <h2>State <%= Atom.to_string(game.state) %></h1>
   <hr>
+  <h2>Players</h2>
   <ol>
     <%= for player <- game.players do %>
     <li>
       <%= player.name %>, points: <%= player.points %>
-      <%= if player.bet != nil do %><%= ", " <> player.bet %><% end %>
+      <%= if player.bid != nil do %>
+        , bid: <%= player.bid %>
+      <% end %>
     </li>
     <% end %>
   </ol>
+  <h2>Queue</h2>
+  <ol>
+    <%= for player_name <- game.queue do %>
+    <li> <%= player_name %> </li>
+    <% end %>
+  </ol>
   <hr>
+  <h2>Stack</h2>
   <div>
     <%= if game.stack != nil do %>
       Current Stack Trump: <%= Atom.to_string(game.stack.trump) %>
       <ol>
-        <%= for card <- game.stack.current_trick do %>
-          <li><%= Bizard.Card.to_string(card) %></li>
+        <%= for {card, player} <- game.stack.current_trick do %>
+          <li><%= to_string(card) %> (<%= player.name %>)</li>
         <% end %>
-        <li>Red 12 (Player 1)</li>
-        <li>Blue 12 (Player 2)</li>
       </ol>
     <% end %>
   </div>
+  <%= if game.state == :bidding do %>
+    <h2>Bid</h2>
+    <%= for bid <- 0..game.round do %>
+      <button
+        type="submit"
+        hx-put="/game/bid/<%= to_string(bid) %>">
+        <%= bid %>
+      </button>
+    <% end %>
+  <% end %>
+  <h2>Hand</h2>
   <div>
-    <button type="submit">Red 1</button>
-    <button type="submit" disabled>Blue 2</button>
-    <button type="submit" disabled>Green 3</button>
-    <button type="submit">Wizard</button>
+    <%= for card <- player.hand do %>
+      <button
+        type="submit"
+        <%= if game.state != :playing do %>disabled<% end %>
+        hx-put="/game/play-card/<%= to_string(card) %>">
+        <%= to_string(card) %>
+      </button>
+    <% end %>
   </div>
 </div>

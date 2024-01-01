@@ -13,18 +13,24 @@ defmodule Bizard.Controller.Main do
 
   defp provide_game_state(conn, _opts) do
     game = Bizard.Component.Game.get()
-    Plug.Conn.assign(conn, :game, game)
+
+    conn
+    |> Plug.Conn.assign(:game, game)
+    |> Plug.Conn.assign(:initial_game, game)
   end
 
   defp update_game_state(conn, _opts) do
-    Bizard.Component.Game.set(conn.assigns.game)
-    Bizard.Component.EventPubSub.publish("game-update")
-    IO.inspect(conn.assigns.game)
+    if conn.assigns.game != conn.assigns.initial_game do
+      Bizard.Component.Game.set(conn.assigns.game)
+      Bizard.Component.EventPubSub.publish("game-update")
+      IO.inspect(conn.assigns.game)
+    end
+
     conn
   end
 
   forward("/register", to: Bizard.Controller.Register)
   forward("/events", to: Bizard.Controller.Events)
+  forward("/game", to: Bizard.Controller.Game)
   forward("/", to: Bizard.Controller.Game)
 end
-
