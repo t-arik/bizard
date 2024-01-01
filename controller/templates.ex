@@ -18,6 +18,6 @@ defmodule Bizard.Template do
     :def,
     :game,
     "views/game.heex",
-    [:game]
+    [:game, :player]
   )
 end

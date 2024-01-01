@@ -14,7 +14,7 @@ defmodule Bizard.Controller.Register do
 
     if user != nil do
       conn
-      |> put_resp_header("location", "/")
+      |> put_resp_header("location", "/game")
       |> send_resp(302, "")
       |> halt()
     else
@@ -27,12 +27,15 @@ defmodule Bizard.Controller.Register do
     name = Map.get(conn.body_params, "name")
 
     if name != nil do
-      player = name |> Plug.HTML.html_escape() |> Player.new()
+      name = Plug.HTML.html_escape(name)
+      player = Player.new(name)
+
+      game = Game.add_player(conn.assigns.game, player)
 
       conn
-      |> assign(:game, Game.add_player(conn.assigns.game, player))
+      |> assign(:game, game)
       |> put_resp_cookie("user-id", name)
-      |> put_resp_header("location", "/")
+      |> put_resp_header("location", "/game")
       |> send_resp(302, "")
     else
       conn |> send_resp(400, "Missing 'name' parameter")

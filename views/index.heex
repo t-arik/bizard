@@ -25,10 +25,10 @@
   </style>
   <!-- TODO avoid CDN -->
   <script src="assets/htmx.js"></script>
-  <script src="https://unpkg.com/htmx.org/dist/ext/sse.js"></script>
+  <script src="assets/sse.js"></script>
 </head>
 
-<body hx-boost="true">
+<body hx-boost="true" hx-ext="sse" sse-connect="/events">
   <%= content %>
 </body>
 

@@ -10,7 +10,7 @@ defmodule Bizard.Game do
     :stack,
     players: [],
     queue: [],
-    round: 1,
+    round: 0,
     state: :waiting
   ]
 
@@ -20,20 +20,62 @@ defmodule Bizard.Game do
   end
 
   def add_player(game = %Game{state: :waiting}, player = %Player{}) do
-    %Game{game | players: [player | game.players]}
+    game = %Game{game | players: [player | game.players]}
+
+    if length(game.players) >= 2 do
+      %Game{game | state: :ready}
+    else
+      game
+    end
   end
 
-  def deal_cards(game = %Game{state: :waiting}) do
+  def get_player(game = %Game{}, name) when is_binary(name) do
+    game.players
+    |> Enum.find(fn p -> p.name == name end)
+  end
+
+  defp update_player(game = %Game{}, new_player = %Player{}) do
+    players =
+      Enum.map(game.players, fn player ->
+        if player.name == new_player.name do
+          new_player
+        else
+          player
+        end
+      end)
+
+    %Game{game | players: players}
+  end
+
+  def start_game(game = %Game{state: :ready}) do
+    %Game{game | round: 1, state: :dealing}
+    |> set_playing_order(hd(game.players))
+  end
+
+  defp set_playing_order(game = %Game{}, first_player = %Player{}) do
+    idx =
+      Enum.find_index(game.players, fn player = %Player{} ->
+        player.name == first_player.name
+      end)
+
+    {left, right} =
+      game.players
+      |> Enum.map(fn player -> player.name end)
+      |> Enum.split(idx)
+
+    %Game{game | queue: right ++ left}
+  end
+
+  def deal(game = %Game{state: :dealing}) do
     [top_card | deck] = Deck.new()
     stack = Stack.new(top_card)
 
-    # give the players cards
     players =
       game.players
       |> Enum.zip(Enum.chunk_every(deck, game.round))
       |> Enum.map(fn {player, hand} -> Player.set_hand(player, hand) end)
 
-    %Game{game | state: :playing, stack: stack, players: players, queue: []}
+    %Game{game | state: :bidding, stack: stack, players: players}
   end
 
   def set_trump(game = %Game{stack: %Stack{trump: :pending}}, suit) do
@@ -41,37 +83,41 @@ defmodule Bizard.Game do
     %Game{game | stack: stack}
   end
 
+  def bid(
+        game = %Game{state: :bidding, queue: [name | rest]},
+        player = %Player{name: name, bid: nil},
+        bid
+      ) do
+    game = update_player(game, Player.set_bid(player, bid))
+    %Game{game | queue: rest}
+  end
+
+  def start_round(game = %Game{state: :bidding}) do
+    if Enum.all?(game.players, fn player -> player.bid != nil end) do
+      %Game{game | state: :playing}
+      |> set_playing_order(hd(game.players))
+    end
+  end
+
   def play_card(
-        game = %Game{state: :playing, queue: [player | queue_rest]},
-        player = %Player{},
+        game = %Game{state: :playing, queue: [name | rest]},
+        player = %Player{name: name},
         card = %Card{}
       ) do
-    # TODO check if player is part of the game
     with {:owns_card, true} <- {:owns_card, Enum.member?(player.hand, card)},
          {:legal, true} <- {:legal, card in legal_moves(game.stack, player)} do
-      stack = Stack.play(game.stack, card)
+      stack = Stack.play(game.stack, card, player)
 
-      players =
-        Enum.map(game.players, fn p ->
-          if p.name == player.name do
-            Player.remove_card(player, card)
-          else
-            p
-          end
-        end)
+      game = update_player(game, Player.remove_card(player, card))
 
-      %Game{game | stack: stack, queue: queue_rest, players: players}
+      %Game{game | stack: stack, queue: rest}
     else
       {:owns_card, false} -> {:error, :does_not_own_card}
       {:legal, false} -> {:error, :illegal_move}
     end
   end
 
-  def play_card(%Game{state: :playing}, %Player{}, %Card{}) do
-    {:error, :game_not_started}
-  end
-
-  def legal_moves(stack = %Stack{}, player = %Player{}) do
+  defp legal_moves(stack = %Stack{}, player = %Player{}) do
     trump = stack.trump
     to_serve = stack.to_serve
 
@@ -87,13 +133,28 @@ defmodule Bizard.Game do
     if Enum.empty?(moves), do: player.hand, else: moves
   end
 
-  def conclude_trick(game = %Game{}) do
-    # TODO
-    game
+  def conclude_trick(game = %Game{queue: [], state: :playing}) do
+    player =
+      game.stack
+      |> Stack.trick_winner()
+      |> Player.add_trick(game.stack.current_trick)
+
+    game =
+      game
+      |> update_player(player)
+      |> then(fn game -> %Game{game | stack: Stack.reset(game.stack)} end)
+
+    if game.round == length(game.stack.tricks) do
+      %Game{game | state: :round_ended}
+      |> conclude_round()
+    else
+      %Game{game | state: :playing}
+      |> set_playing_order(player)
+    end
   end
 
-  # ensure a sitting order
-  # keep track of the active player and the order
-  # evaluate the trick winner and distribute the points
-  # repeat
+  def conclude_round(game = %Game{}) do
+    game
+    # TODO reset bids and remove tricks from player
+  end
 end

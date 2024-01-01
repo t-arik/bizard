@@ -9,11 +9,21 @@ defmodule Bizard.Card do
   defmacro wizard, do: quote(do: %Bizard.Card{suit: :wizard})
   defmacro jester, do: quote(do: %Bizard.Card{suit: :jester})
 
-  def to_string(wizard()) do
+  def from_string(str) when is_binary(str) do
+    # This is fucking cursed, I know.
+    cards = Bizard.Deck.new()
+    Enum.find(cards, fn card -> to_string(card) == str end)
+  end
+end
+
+defimpl String.Chars, for: Bizard.Card do
+  require Bizard.Card
+
+  def to_string(Bizard.Card.wizard()) do
     "Wizard"
   end
 
-  def to_string(jester()) do
+  def to_string(Bizard.Card.jester()) do
     "Jester"
   end
 

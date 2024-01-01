@@ -17,11 +17,12 @@ defmodule Bizard.Controller.Events do
   end
 
   def event_loop(conn) do
-    {:ok, conn} = receive do
-      {:event, event} ->
-        IO.inspect("Got event #{event}")
-        Plug.Conn.chunk(conn, "event: #{event}\ndata: noop\n\n")
-    end
+    {:ok, conn} =
+      receive do
+        {:event, event} ->
+          Plug.Conn.chunk(conn, "event: #{event}\ndata: noop\n\n")
+      end
+
     event_loop(conn)
   end
 
