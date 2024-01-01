@@ -1,16 +1,16 @@
-defmodule Bizard.Plug.CookieAuth do
+defmodule Bizard.Plug.Auth do
   import Plug.Conn
 
   def init(opts) do
     opts
   end
 
-  # TODO make redirect an option instead of hardcoded
-  def call(conn, redirect: url, required_cookie: cookie) do
+  def call(conn, redirect: url) do
     conn = fetch_cookies(conn)
+    user = Map.get(conn.cookies, "user-id")
 
-    if Map.get(conn.cookies, cookie) do
-      conn
+    if user != nil do
+      conn |> assign(:user, user)
     else
       conn
       |> put_resp_header("location", url)

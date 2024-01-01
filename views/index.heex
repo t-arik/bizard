@@ -24,10 +24,11 @@
     }
   </style>
   <!-- TODO avoid CDN -->
-  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script src="assets/htmx.js"></script>
+  <script src="https://unpkg.com/htmx.org/dist/ext/sse.js"></script>
 </head>
 
-<body hx-boost="true" hx-sse="connect:/events" hx-get="sse:game-update">
+<body hx-boost="true">
   <%= content %>
 </body>
 

@@ -1,23 +1,23 @@
-defmodule Bizard.Templates do
+defmodule Bizard.Template do
   require EEx
 
   EEx.function_from_file(
     :def,
     :index,
-    "lib/bizard/template/index.heex",
+    "views/index.heex",
     [:content]
   )
 
   EEx.function_from_file(
     :def,
     :register,
-    "lib/bizard/template/register.heex"
+    "views/register.heex"
   )
 
   EEx.function_from_file(
     :def,
     :game,
-    "lib/bizard/template/game.heex",
+    "views/game.heex",
     [:game]
   )
 end
