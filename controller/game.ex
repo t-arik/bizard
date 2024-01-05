@@ -1,4 +1,5 @@
 defmodule Bizard.Controller.Game do
+  require Bizard.Card
   use Plug.Router
 
   plug(Bizard.Plug.Auth, redirect: "/register")
@@ -16,12 +17,12 @@ defmodule Bizard.Controller.Game do
     )
   end
 
-  put "/start" do
+  post "/start" do
     game = conn.assigns.game
 
     if game.state != :ready do
       conn
-      |> Plug.Conn.send_resp(403, "The game requires more players")
+      |> send_resp(403, "The game requires more players")
     else
       game =
         game
@@ -30,11 +31,35 @@ defmodule Bizard.Controller.Game do
 
       conn
       |> assign(:game, game)
-      |> Plug.Conn.send_resp(200, "")
+      |> send_resp(200, "")
     end
   end
 
-  put "/play-card/:card" do
+  post "/set-trump/:suit" do
+    player = conn.assigns.player
+    game = conn.assigns.game
+    suit = case suit do
+       "red" -> Bizard.Card.red()
+       "blue" -> Bizard.Card.blue()
+       "green" -> Bizard.Card.green()
+       "yellow" -> Bizard.Card.yellow()
+      _ -> :none
+    end
+
+    # TODO avoid comparison by name
+    if suit != :none and hd(game.queue) == player.name do
+      game = Bizard.Game.set_trump(game, suit)
+      conn
+      |> assign(:game, game)
+      |> send_resp(200, "")
+    else
+      conn
+      |> send_resp(400, "Invalid suit or not your turn.")
+    end
+
+  end
+
+  post "/play-card/:card" do
     conclude_if_all_played = fn
       game = %Bizard.Game{queue: []} -> Bizard.Game.conclude_trick(game)
       game -> game
@@ -52,7 +77,7 @@ defmodule Bizard.Controller.Game do
     |> send_resp(200, "")
   end
 
-  put "/bid/:bid" do
+  post "/bid/:bid" do
     start_if_all_bid = fn
       game = %Bizard.Game{queue: []} -> Bizard.Game.start_round(game)
       game -> game

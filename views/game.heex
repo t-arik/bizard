@@ -1,6 +1,6 @@
 <div hx-get="." hx-trigger="sse:game-update">
   <%= if game.state == :ready do %>
-    <button type="submit" hx-put="/game/start">Start</button>
+    <button type="submit" hx-post="/game/start">Start</button>
   <% else %>
     
   <% end %>
@@ -41,8 +41,18 @@
     <%= for bid <- 0..game.round do %>
       <button
         type="submit"
-        hx-put="/game/bid/<%= to_string(bid) %>">
+        hx-post="/game/bid/<%= to_string(bid) %>">
         <%= bid %>
+      </button>
+    <% end %>
+  <% end %>
+  <%= if game.state == :trump_pending do %>
+    <h2>Select Trump</h2>
+    <%= for suit <- ["red", "blue", "green", "yellow"] do %>
+      <button
+        type="submit"
+        hx-post="/game/set-trump/<%= suit %>">
+        <%= suit %>
       </button>
     <% end %>
   <% end %>
@@ -51,8 +61,8 @@
     <%= for card <- player.hand do %>
       <button
         type="submit"
-        <%= if game.state != :playing do %>disabled<% end %>
-        hx-put="/game/play-card/<%= to_string(card) %>">
+        hx-post="/game/play-card/<%= to_string(card) %>"
+        <%= if game.state != :playing do %>disabled<% end %>> 
         <%= to_string(card) %>
       </button>
     <% end %>

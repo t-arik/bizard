@@ -68,26 +68,30 @@ defmodule Bizard.Game do
 
   def deal(game = %Game{state: :dealing}) do
     [top_card | deck] = Deck.new()
-    stack = Stack.new(top_card)
 
     players =
       game.players
       |> Enum.zip(Enum.chunk_every(deck, game.round))
       |> Enum.map(fn {player, hand} -> Player.set_hand(player, hand) end)
 
-    %Game{game | state: :bidding, stack: stack, players: players}
+    game = %Game{game | players: players}
+
+    case Stack.new(top_card) do
+      {:ok, stack} -> %Game{game | state: :bidding, stack: stack}
+      {:pending, stack} -> %Game{game | state: :trump_pending, stack: stack}
+    end
   end
 
   def set_trump(game = %Game{stack: %Stack{trump: :pending}}, suit) do
     stack = Stack.set_trump(game.stack, suit)
-    %Game{game | stack: stack}
+    %Game{game | stack: stack, state: :playing}
   end
 
   def bid(
-        game = %Game{state: :bidding, queue: [name | rest]},
-        player = %Player{name: name, bid: nil},
-        bid
-      ) do
+    game = %Game{state: :bidding, queue: [name | rest]},
+    player = %Player{name: name, bid: nil},
+    bid
+  ) do
     game = update_player(game, Player.set_bid(player, bid))
     %Game{game | queue: rest}
   end
@@ -100,12 +104,12 @@ defmodule Bizard.Game do
   end
 
   def play_card(
-        game = %Game{state: :playing, queue: [name | rest]},
-        player = %Player{name: name},
-        card = %Card{}
-      ) do
+    game = %Game{state: :playing, queue: [name | rest]},
+    player = %Player{name: name},
+    card = %Card{}
+  ) do
     with {:owns_card, true} <- {:owns_card, Enum.member?(player.hand, card)},
-         {:legal, true} <- {:legal, card in legal_moves(game.stack, player)} do
+      {:legal, true} <- {:legal, card in legal_moves(game.stack, player)} do
       stack = Stack.play(game.stack, card, player)
 
       game = update_player(game, Player.remove_card(player, card))

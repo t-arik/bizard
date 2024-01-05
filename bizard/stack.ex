@@ -13,15 +13,15 @@ defmodule Bizard.Stack do
   ]
 
   def new(Card.jester()) do
-    %Stack{trump: :none}
+    {:ok, %Stack{trump: :none}}
   end
 
   def new(Card.wizard()) do
-    %Stack{trump: :pending}
+    {:pending, %Stack{trump: :pending}}
   end
 
   def new(%Card{suit: suit}) do
-    %Stack{trump: suit}
+    {:ok, %Stack{trump: suit}}
   end
 
   def set_trump(stack = %Stack{trump: :pending}, trump) do
