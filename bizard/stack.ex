@@ -24,8 +24,8 @@ defmodule Bizard.Stack do
     {:ok, %Stack{trump: suit}}
   end
 
-  def set_trump(stack = %Stack{trump: :pending}, trump) do
-    # TODO check if trump suit is valid e.g. :red, :blue, ...
+  def set_trump(stack = %Stack{trump: :pending}, trump)
+      when trump in [Card.red(), Card.blue(), Card.green(), Card.yellow()] do
     %Stack{stack | trump: trump}
   end
 

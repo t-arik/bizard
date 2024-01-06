@@ -34,6 +34,14 @@ defmodule Bizard.Game do
     |> Enum.find(fn p -> p.name == name end)
   end
 
+  def get_active_player(%Game{queue: []}) do
+    :none
+  end
+
+  def get_active_player(%Game{queue: [name | _]}) do
+    name
+  end
+
   defp update_player(game = %Game{}, new_player = %Player{}) do
     players =
       Enum.map(game.players, fn player ->
@@ -138,14 +146,14 @@ defmodule Bizard.Game do
   end
 
   def conclude_trick(game = %Game{queue: [], state: :playing}) do
-    player =
+    winner =
       game.stack
       |> Stack.trick_winner()
       |> Player.add_trick(game.stack.current_trick)
 
     game =
       game
-      |> update_player(player)
+      |> update_player(winner)
       |> then(fn game -> %Game{game | stack: Stack.reset(game.stack)} end)
 
     if game.round == length(game.stack.tricks) do
@@ -153,12 +161,15 @@ defmodule Bizard.Game do
       |> conclude_round()
     else
       %Game{game | state: :playing}
-      |> set_playing_order(player)
+      |> set_playing_order(winner)
     end
   end
 
-  def conclude_round(game = %Game{}) do
+  defp conclude_round(game = %Game{state: :round_ended}) do
     game
-    # TODO reset bids and remove tricks from player
+    # TODO
+    # reset bids 
+    # remove tricks from players
+    # give points to players
   end
 end
