@@ -8,13 +8,14 @@ defmodule Bizard.Controller.Game do
   plug(:dispatch)
 
   get "/" do
-    send_resp(
-      conn,
-      200,
-      conn.assigns.game
-      |> Bizard.Template.game(conn.assigns.player)
+    %{game: game, player: player} = conn.assigns
+
+    view =
+      game
+      |> Bizard.Template.game(player)
       |> Bizard.Template.index()
-    )
+
+    send_resp(conn, 200, view)
   end
 
   post "/start" do
@@ -36,60 +37,71 @@ defmodule Bizard.Controller.Game do
   end
 
   post "/set-trump/:suit" do
-    player = conn.assigns.player
-    game = conn.assigns.game
-    suit = case suit do
-       "red" -> Bizard.Card.red()
-       "blue" -> Bizard.Card.blue()
-       "green" -> Bizard.Card.green()
-       "yellow" -> Bizard.Card.yellow()
-      _ -> :none
-    end
+    %{game: game, player: player} = conn.assigns
 
-    # TODO avoid comparison by name
-    if suit != :none and hd(game.queue) == player.name do
+    if suit != :none and Bizard.Game.get_active_player(game) == player.name do
+      suit =
+        case suit do
+          "red" -> Bizard.Card.red()
+          "blue" -> Bizard.Card.blue()
+          "green" -> Bizard.Card.green()
+          "yellow" -> Bizard.Card.yellow()
+          _ -> :none
+        end
+
       game = Bizard.Game.set_trump(game, suit)
+
       conn
       |> assign(:game, game)
       |> send_resp(200, "")
     else
-      conn
-      |> send_resp(400, "Invalid suit or not your turn.")
+      send_resp(conn, 400, "Invalid suit or not your turn.")
     end
-
   end
 
   post "/play-card/:card" do
-    conclude_if_all_played = fn
-      game = %Bizard.Game{queue: []} -> Bizard.Game.conclude_trick(game)
-      game -> game
+    %{game: game, player: player} = conn.assigns
+
+    if Bizard.Game.get_active_player(game) == player.name do
+      conclude_if_all_played = fn
+        game = %Bizard.Game{queue: []} -> Bizard.Game.conclude_trick(game)
+        game -> game
+      end
+
+      card = Bizard.Card.from_string(card)
+
+      game =
+        game
+        |> Bizard.Game.play_card(player, card)
+        |> then(conclude_if_all_played)
+
+      conn
+      |> assign(:game, game)
+      |> send_resp(200, "")
+    else
+      send_resp(conn, 400, "Not your turn")
     end
-
-    card = Bizard.Card.from_string(card)
-
-    game =
-      conn.assigns.game
-      |> Bizard.Game.play_card(conn.assigns.player, card)
-      |> then(conclude_if_all_played)
-
-    conn
-    |> assign(:game, game)
-    |> send_resp(200, "")
   end
 
   post "/bid/:bid" do
-    start_if_all_bid = fn
-      game = %Bizard.Game{queue: []} -> Bizard.Game.start_round(game)
-      game -> game
+    %{game: game, player: player} = conn.assigns
+
+    if Bizard.Game.get_active_player(game) == player.name do
+      start_if_all_bid = fn
+        game = %Bizard.Game{queue: []} -> Bizard.Game.start_round(game)
+        game -> game
+      end
+
+      game =
+        game
+        |> Bizard.Game.bid(player, String.to_integer(bid))
+        |> then(start_if_all_bid)
+
+      conn
+      |> assign(:game, game)
+      |> send_resp(200, "")
+    else
+      send_resp(conn, 400, "Not your turn")
     end
-
-    game =
-      conn.assigns.game
-      |> Bizard.Game.bid(conn.assigns.player, String.to_integer(bid))
-      |> then(start_if_all_bid)
-
-    conn
-    |> assign(:game, game)
-    |> send_resp(200, "")
   end
 end

@@ -1,4 +1,3 @@
-# TODO use path utility for templates
 # TODO check for XSS
 # TODO use CSRFProtection
 defmodule Bizard.Controller.Main do
