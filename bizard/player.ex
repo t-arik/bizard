@@ -28,4 +28,12 @@ defmodule Bizard.Player do
   def set_bid(player = %Player{}, bid) when is_integer(bid) do
     %Player{player | bid: bid}
   end
+
+  def clear_bid(player = %Player{}) do
+    %Player{player | bid: nil}
+  end
+
+  def clear_tricks(player = %Player{}) do
+    %Player{player | tricks: []}
+  end
 end

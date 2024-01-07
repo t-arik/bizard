@@ -1,5 +1,7 @@
 defmodule Bizard.Controller.Game do
+  require Bizard.Game
   require Bizard.Card
+  alias Bizard.Game
   use Plug.Router
 
   plug(Bizard.Plug.Auth, redirect: "/register")
@@ -21,14 +23,14 @@ defmodule Bizard.Controller.Game do
   post "/start" do
     game = conn.assigns.game
 
-    if game.state != :ready do
+    if Game.is_ready_to_deal(game) == false do
       conn
       |> send_resp(403, "The game requires more players")
     else
       game =
         game
-        |> Bizard.Game.start_game()
-        |> Bizard.Game.deal()
+        |> Game.start_round()
+        |> Game.deal()
 
       conn
       |> assign(:game, game)
@@ -39,7 +41,7 @@ defmodule Bizard.Controller.Game do
   post "/set-trump/:suit" do
     %{game: game, player: player} = conn.assigns
 
-    if suit != :none and Bizard.Game.get_active_player(game) == player.name do
+    if suit != :none and Game.get_active_player(game) == player.name do
       suit =
         case suit do
           "red" -> Bizard.Card.red()
@@ -49,7 +51,7 @@ defmodule Bizard.Controller.Game do
           _ -> :none
         end
 
-      game = Bizard.Game.set_trump(game, suit)
+      game = Game.set_trump(game, suit)
 
       conn
       |> assign(:game, game)
@@ -62,18 +64,16 @@ defmodule Bizard.Controller.Game do
   post "/play-card/:card" do
     %{game: game, player: player} = conn.assigns
 
-    if Bizard.Game.get_active_player(game) == player.name do
-      conclude_if_all_played = fn
-        game = %Bizard.Game{queue: []} -> Bizard.Game.conclude_trick(game)
-        game -> game
-      end
-
+    if Game.get_active_player(game) == player.name do
       card = Bizard.Card.from_string(card)
 
       game =
         game
-        |> Bizard.Game.play_card(player, card)
-        |> then(conclude_if_all_played)
+        |> Game.play_card(player, card)
+        |> then(fn
+          game when Game.is_queue_empty(game) -> Game.conclude_trick(game)
+          game -> game
+        end)
 
       conn
       |> assign(:game, game)
@@ -86,16 +86,14 @@ defmodule Bizard.Controller.Game do
   post "/bid/:bid" do
     %{game: game, player: player} = conn.assigns
 
-    if Bizard.Game.get_active_player(game) == player.name do
-      start_if_all_bid = fn
-        game = %Bizard.Game{queue: []} -> Bizard.Game.start_round(game)
-        game -> game
-      end
-
+    if Game.get_active_player(game) == player.name do
       game =
         game
-        |> Bizard.Game.bid(player, String.to_integer(bid))
-        |> then(start_if_all_bid)
+        |> Game.bid(player, String.to_integer(bid))
+        |> then(fn
+          game when Game.is_queue_empty(game) -> Game.start_playing(game)
+          game -> game
+        end)
 
       conn
       |> assign(:game, game)
