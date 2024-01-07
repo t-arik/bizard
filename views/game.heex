@@ -1,5 +1,6 @@
+<% require Bizard.Game %>
 <div hx-get="." hx-trigger="sse:game-update">
-  <%= if game.state == :ready do %>
+  <%= if Bizard.Game.is_ready_to_deal(game) do %>
     <button type="submit" hx-post="/game/start">Start</button>
   <% else %>
     
