@@ -67,17 +67,22 @@ defmodule Bizard.Controller.Game do
     if Game.get_active_player(game) == player.name do
       card = Bizard.Card.from_string(card)
 
-      game =
-        game
-        |> Game.play_card(player, card)
-        |> then(fn
-          game when Game.is_queue_empty(game) -> Game.conclude_trick(game)
-          game -> game
-        end)
+      case Game.play_card(game, player, card) do
+        {:error, _error} ->
+          send_resp(conn, 400, "Cannot play card")
 
-      conn
-      |> assign(:game, game)
-      |> send_resp(200, "")
+        {:ok, game} ->
+          game =
+            if Game.is_queue_empty(game) do
+              Game.conclude_trick(game)
+            else
+              game
+            end
+
+          conn
+          |> assign(:game, game)
+          |> send_resp(200, "")
+      end
     else
       send_resp(conn, 400, "Not your turn")
     end
