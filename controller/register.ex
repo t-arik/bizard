@@ -41,6 +41,4 @@ defmodule Bizard.Controller.Register do
       conn |> send_resp(400, "Missing 'name' parameter")
     end
   end
-
-  # TODO 404 match
 end

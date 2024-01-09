@@ -25,6 +25,4 @@ defmodule Bizard.Controller.Events do
 
     event_loop(conn)
   end
-
-  # TODO 404 route
 end
