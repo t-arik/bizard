@@ -45,11 +45,11 @@ defmodule Bizard.Game do
     name
   end
 
-  defp update_player(game = %Game{}, new_player = %Player{}) do
+  defp update_player(game = %Game{}, name, update) do
     players =
       Enum.map(game.players, fn player ->
-        if player.name == new_player.name do
-          new_player
+        if player.name == name do
+          update.(player)
         else
           player
         end
@@ -108,7 +108,7 @@ defmodule Bizard.Game do
         player = %Player{name: name, bid: nil},
         bid
       ) do
-    game = update_player(game, Player.set_bid(player, bid))
+    game = update_player(game, player.name, &Player.set_bid(&1, bid))
     %Game{game | queue: rest}
   end
 
@@ -128,9 +128,9 @@ defmodule Bizard.Game do
          {:legal, true} <- {:legal, card in legal_moves(game.stack, player)} do
       stack = Stack.play(game.stack, card, player)
 
-      game = update_player(game, Player.remove_card(player, card))
+      game = update_player(game, player.name, &Player.remove_card(&1, card))
 
-      %Game{game | stack: stack, queue: rest}
+      {:ok, %Game{game | stack: stack, queue: rest}}
     else
       {:owns_card, false} -> {:error, :does_not_own_card}
       {:legal, false} -> {:error, :illegal_move}
@@ -157,11 +157,12 @@ defmodule Bizard.Game do
     winner =
       game.stack
       |> Stack.trick_winner()
-      |> Player.add_trick(game.stack.current_trick)
+
+    trick = game.stack.current_trick
 
     game =
       game
-      |> update_player(winner)
+      |> update_player(winner.name, &Player.add_trick(&1, trick))
       |> then(fn game -> %Game{game | stack: Stack.reset(game.stack)} end)
 
     if game.round == length(game.stack.tricks) do
