@@ -1,5 +1,3 @@
-# TODO check for XSS
-# TODO use CSRFProtection
 defmodule Bizard.Controller.Main do
   use Plug.Router
 

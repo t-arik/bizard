@@ -22,7 +22,8 @@ defmodule Bizard.MixProject do
 
   defp deps do
     [
-      {:plug_cowboy, "~> 2.6.1"}
+      {:plug_cowboy, "~> 2.6.1"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
     ]
   end
 end
