@@ -1,4 +1,12 @@
 defmodule Bizard.Card do
+  @moduledoc """
+  This module represents a Card in Bizard.
+
+  It also defines constants such as the possible card suits and special cards
+  like the wizard and jester.
+  """
+
+  @type t() :: %Bizard.Card{}
   @enforce_keys [:suit]
   defstruct [:suit, :value]
 
@@ -9,8 +17,9 @@ defmodule Bizard.Card do
   defmacro wizard, do: quote(do: %Bizard.Card{suit: :wizard})
   defmacro jester, do: quote(do: %Bizard.Card{suit: :jester})
 
+  @spec from_string(binary()) :: t()
   def from_string(str) when is_binary(str) do
-    # This is fucking cursed, I know.
+    # This is cursed, I know.
     cards = Bizard.Deck.new()
     Enum.find(cards, fn card -> to_string(card) == str end)
   end

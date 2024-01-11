@@ -1,9 +1,12 @@
 defmodule Bizard.Deck do
+  @moduledoc """
+  A list of all cards which can be drawn by the player
+  """
   alias Bizard.Card
   require Bizard.Card
 
-  @spec new() :: [%Card{}]
-  def new() do
+  @spec new :: [Bizard.Card.t()]
+  def new do
     suits = [
       Card.red(),
       Card.blue(),

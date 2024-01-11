@@ -4,7 +4,7 @@ defmodule Bizard do
 
   @impl true
   def start(_type, _args) do
-    port = 4000
+    port = 5000
 
     webserver = {
       Plug.Cowboy,

@@ -1,8 +1,8 @@
 defmodule Bizard.Controller.Register do
   use Plug.Router
-  alias Bizard.Template
   alias Bizard.Game
   alias Bizard.Player
+  alias Bizard.Template
 
   plug(Plug.Parsers, parsers: [:urlencoded])
   plug(:match)

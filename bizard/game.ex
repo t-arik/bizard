@@ -1,4 +1,7 @@
 defmodule Bizard.Game do
+  @moduledoc """
+  Represents the whole lifecycle of a Bizard game.
+  """
   require Bizard.Card
   alias Bizard.Card
   alias Bizard.Deck
@@ -6,6 +9,7 @@ defmodule Bizard.Game do
   alias Bizard.Player
   alias Bizard.Stack
 
+  @type t() :: %Bizard.Game{}
   defstruct [
     :stack,
     players: [],
@@ -17,11 +21,12 @@ defmodule Bizard.Game do
   defguard is_ready_to_deal(game) when game.state == :ready_to_deal
   defguard is_queue_empty(game) when game.queue == []
 
-  @spec new() :: %Game{}
-  def new() do
+  @spec new :: t()
+  def new do
     %Game{}
   end
 
+  @spec add_player(t(), Player.t()) :: t()
   def add_player(game = %Game{state: :waiting}, player = %Player{}) do
     game = %Game{game | players: [player | game.players]}
 
@@ -32,19 +37,22 @@ defmodule Bizard.Game do
     end
   end
 
+  @spec get_player(t(), binary()) :: Player.t() | nil
   def get_player(game = %Game{}, name) when is_binary(name) do
     game.players
     |> Enum.find(fn p -> p.name == name end)
   end
 
+  @spec get_active_player(t()) :: binary() | nil
   def get_active_player(%Game{queue: []}) do
-    :none
+    nil
   end
 
   def get_active_player(%Game{queue: [name | _]}) do
     name
   end
 
+  @spec update_player(t(), binary(), (Player.t() -> Player.t())) :: t()
   defp update_player(game = %Game{}, name, update) do
     players =
       Enum.map(game.players, fn player ->
@@ -58,6 +66,7 @@ defmodule Bizard.Game do
     %Game{game | players: players}
   end
 
+  @spec start_round(t()) :: t()
   def start_round(game = %Game{round: nil}) do
     %Game{game | round: 1, state: :ready_to_deal}
     |> set_playing_order(hd(game.players))
@@ -68,6 +77,7 @@ defmodule Bizard.Game do
     |> set_playing_order(hd(game.players))
   end
 
+  @spec set_playing_order(t(), Player.t()) :: t()
   defp set_playing_order(game = %Game{}, first_player = %Player{}) do
     idx =
       Enum.find_index(game.players, fn player = %Player{} ->
@@ -82,6 +92,7 @@ defmodule Bizard.Game do
     %Game{game | queue: right ++ left}
   end
 
+  @spec deal(t()) :: t()
   def deal(game = %Game{state: :ready_to_deal}) when is_ready_to_deal(game) do
     [top_card | deck] = Deck.new()
 
@@ -98,11 +109,13 @@ defmodule Bizard.Game do
     end
   end
 
+  @spec set_trump(t(), atom()) :: t()
   def set_trump(game = %Game{state: :trump_pending}, suit) do
     stack = Stack.set_trump(game.stack, suit)
     %Game{game | stack: stack, state: :playing}
   end
 
+  @spec bid(t(), Player.t(), integer()) :: t()
   def bid(
         game = %Game{state: :bidding, queue: [name | rest]},
         player = %Player{name: name, bid: nil},
@@ -112,6 +125,7 @@ defmodule Bizard.Game do
     %Game{game | queue: rest}
   end
 
+  @spec start_playing(t()) :: t()
   def start_playing(game = %Game{state: :bidding}) do
     if Enum.all?(game.players, fn player -> player.bid != nil end) do
       %Game{game | state: :playing}
@@ -119,6 +133,7 @@ defmodule Bizard.Game do
     end
   end
 
+  @spec play_card(t(), Player.t(), Card.t()) :: {:ok, t()} | {:error, atom()}
   def play_card(
         game = %Game{state: :playing, queue: [name | rest]},
         player = %Player{name: name},
@@ -137,6 +152,7 @@ defmodule Bizard.Game do
     end
   end
 
+  @spec legal_moves(Stack.t(), Player.t()) :: [Card.t()]
   defp legal_moves(stack = %Stack{}, player = %Player{}) do
     trump = stack.trump
     to_serve = stack.to_serve
@@ -153,6 +169,7 @@ defmodule Bizard.Game do
     if Enum.empty?(moves), do: player.hand, else: moves
   end
 
+  @spec conclude_trick(t()) :: t()
   def conclude_trick(game = %Game{queue: [], state: :playing}) do
     winner =
       game.stack
@@ -174,6 +191,7 @@ defmodule Bizard.Game do
     end
   end
 
+  @spec conclude_round(t()) :: t()
   defp conclude_round(game = %Game{state: :round_ended}) do
     players =
       game.players

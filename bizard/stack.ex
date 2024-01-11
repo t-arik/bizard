@@ -1,9 +1,16 @@
 defmodule Bizard.Stack do
+  @moduledoc """
+  This module represents the current stack, which is played to by the players.
+
+  The stack holds information about the current trick, with the cards played
+  and from whom. The stack also dictates the current trump if one exists
+  """
   require Bizard.Card
   alias Bizard.Card
-  alias Bizard.Stack
   alias Bizard.Player
+  alias Bizard.Stack
 
+  @type t() :: %Bizard.Stack{}
   @enforce_keys [:trump]
   defstruct [
     :trump,
@@ -12,6 +19,7 @@ defmodule Bizard.Stack do
     tricks: []
   ]
 
+  @spec new(Card.t()) :: {:ok, t()} | {:pending, t()}
   def new(Card.jester()) do
     {:ok, %Stack{trump: :none}}
   end
@@ -24,11 +32,13 @@ defmodule Bizard.Stack do
     {:ok, %Stack{trump: suit}}
   end
 
+  @spec set_trump(t(), atom()) :: t()
   def set_trump(stack = %Stack{trump: :pending}, trump)
       when trump in [Card.red(), Card.blue(), Card.green(), Card.yellow()] do
     %Stack{stack | trump: trump}
   end
 
+  @spec play(t(), Card.t(), Player.t()) :: t()
   def play(%Stack{trump: :pending}, %Card{}, %Player{}) do
     raise "The first card was a wizard. Choose a trump before playing"
   end
@@ -50,6 +60,7 @@ defmodule Bizard.Stack do
     %Stack{stack | current_trick: trick}
   end
 
+  @spec trick_winner(t()) :: Player.t()
   def trick_winner(stack = %Stack{}) when length(stack.current_trick) > 0 do
     stack.current_trick
     |> Enum.sort(fn {card1, _player1}, {card2, _player2} ->
@@ -59,6 +70,7 @@ defmodule Bizard.Stack do
     |> then(fn {_card, player} -> player end)
   end
 
+  @spec higher?(atom(), Card.t(), Card.t()) :: boolean()
   defp higher?(trump, card1 = %Card{}, card2 = %Card{}) do
     case {trump, card1, card2} do
       {_, Card.wizard(), %Card{}} -> true
@@ -72,6 +84,7 @@ defmodule Bizard.Stack do
     end
   end
 
+  @spec reset(t()) :: t()
   def reset(stack = %Stack{}) do
     %Stack{
       stack
