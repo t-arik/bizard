@@ -1,4 +1,7 @@
 defmodule Bizard.Controller.Main do
+  @moduledoc """
+  The entrypoint for all requests. Handles routing and game state updates
+  """
   use Plug.Router
 
   plug(Plug.Logger)
@@ -17,9 +20,11 @@ defmodule Bizard.Controller.Main do
   end
 
   defp update_game_state(conn, _opts) do
+    alias Bizard.Component
+
     if conn.assigns.game != conn.assigns.initial_game do
-      Bizard.Component.Game.set(conn.assigns.game)
-      Bizard.Component.EventPubSub.publish("game-update")
+      Component.Game.set(conn.assigns.game)
+      Component.EventPubSub.publish("game-update")
     end
 
     conn

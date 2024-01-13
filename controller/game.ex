@@ -1,4 +1,7 @@
 defmodule Bizard.Controller.Game do
+  @moduledoc """
+  This Plug is a REST API used for getting and updating the game state
+  """
   require Bizard.Game
   require Bizard.Card
   alias Bizard.Game

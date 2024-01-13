@@ -1,4 +1,7 @@
 defmodule Bizard do
+  @moduledoc """
+  This is the main module which registers supervision tree and initial config
+  """
   require Logger
   use Application
 

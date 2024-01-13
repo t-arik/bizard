@@ -1,5 +1,9 @@
 defmodule Bizard.Controller.Events do
+  @moduledoc """
+  Thid Plug is responsible for registering and distributing out SSE
+  """
   use Plug.Router
+  alias Bizard.Component
 
   plug(:match)
   plug(:dispatch)
@@ -12,7 +16,7 @@ defmodule Bizard.Controller.Events do
       |> put_resp_header("content-type", "text/event-stream")
       |> send_chunked(200)
 
-    :ok = Bizard.Component.EventPubSub.subscribe(self())
+    :ok = Component.EventPubSub.subscribe(self())
     event_loop(conn)
   end
 

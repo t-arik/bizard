@@ -1,4 +1,12 @@
 defmodule Bizard.Plug.Auth do
+  @moduledoc """
+  A Plug for ensuring that the user is authenticated
+
+  The user is being redirected to the speicified route, in case the they are
+  not yet authenticated. Once the user is authenticated this plug provides
+  their username inside the connection's assign field
+  """
+
   import Plug.Conn
 
   def init(opts) do

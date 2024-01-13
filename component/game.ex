@@ -1,4 +1,7 @@
 defmodule Bizard.Component.Game do
+  @moduledoc """
+  This module is a process which holds the game's state
+  """
   use Agent
 
   def start_link(_) do

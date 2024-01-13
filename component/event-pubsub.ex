@@ -1,4 +1,8 @@
 defmodule Bizard.Component.EventPubSub do
+  @moduledoc """
+  This module is a process which stores all SSE subscribers and notifies them
+  in case of a 'publish'.
+  """
   use Agent
 
   def start_link(subscriber) when is_list(subscriber) do

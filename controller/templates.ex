@@ -1,4 +1,7 @@
 defmodule Bizard.Template do
+  @moduledoc """
+  This module loads and provides all HTML templates
+  """
   require EEx
 
   EEx.function_from_file(

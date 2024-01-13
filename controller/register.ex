@@ -1,4 +1,7 @@
 defmodule Bizard.Controller.Register do
+  @moduledoc """
+  The Plug responsible for registering a new user
+  """
   use Plug.Router
   alias Bizard.Game
   alias Bizard.Player
