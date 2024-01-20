@@ -7,7 +7,8 @@ defmodule Bizard do
 
   @impl true
   def start(_type, _args) do
-    port = 5000
+    {:ok, port} = System.fetch_env("PORT")
+    port = String.to_integer(port)
 
     webserver = {
       Plug.Cowboy,
