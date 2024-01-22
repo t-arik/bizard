@@ -2,23 +2,21 @@
 <div hx-get="." hx-trigger="sse:game-update">
   <%= if Bizard.Game.is_ready_to_deal(game) do %>
     <button type="submit" hx-post="/game/start">Start</button>
-  <% else %>
-    
   <% end %>
+
+  <div class="flex flex-row gap-2 justify-center">
+  <%= for player <- game.players do %>
+    <div class="rounded-md bg-zinc-800 shadow-md text-white border border-zinc-700 text-base py-5 w-32 flex flex-col place-items-center">
+      <span>[<%= player.name %>]</span>
+      <span><%= player.points %> points</span>
+      <span>[<%= if player.bid != nil do %>Bid: <%= player.bid %><% end %>]</span>
+    </div>
+  <% end %>
+  </div>
+
+  <hr>
   <h2>Round <%= game.round %></h1>
   <h2>State <%= Atom.to_string(game.state) %></h1>
-  <hr>
-  <h2>Players</h2>
-  <ol>
-    <%= for player <- game.players do %>
-    <li>
-      <%= player.name %>, points: <%= player.points %>
-      <%= if player.bid != nil do %>
-        , bid: <%= player.bid %>
-      <% end %>
-    </li>
-    <% end %>
-  </ol>
   <h2>Queue</h2>
   <ol>
     <%= for player_name <- game.queue do %>

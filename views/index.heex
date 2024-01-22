@@ -5,29 +5,12 @@
   <title></title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    :root {
-      --text: #000;
-      --bg: #fff;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #fff;
-        --bg: #1e1e1e;
-      }
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="assets/htmx.js"></script>
   <script src="assets/sse.js"></script>
 </head>
 
-<body hx-boost="true" hx-ext="sse" sse-connect="/events">
+<body hx-boost="true" hx-ext="sse" sse-connect="/events" class="bg-zinc-900 p-5">
   <%= content %>
 </body>
 
