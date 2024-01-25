@@ -1,67 +1,70 @@
 <% require Bizard.Game %>
-<div hx-get="." hx-trigger="sse:game-update">
+<div hx-get="." hx-trigger="sse:game-update" class="text-white">
   <%= if Bizard.Game.is_ready_to_deal(game) do %>
     <button type="submit" hx-post="/game/start">Start</button>
   <% end %>
 
   <div class="flex flex-row gap-2 justify-center">
   <%= for player <- game.players do %>
-    <div class="rounded-md bg-zinc-800 shadow-md text-white border border-zinc-700 text-base py-5 w-32 flex flex-col place-items-center">
-      <span>[<%= player.name %>]</span>
+    <div
+      container
+      class="w-32 flex flex-col place-items-center"
+      <%= if active_player == player.name do %> focus <% end %>
+    >
+      <span><%= player.name %></span>
       <span><%= player.points %> points</span>
-      <span>[<%= if player.bid != nil do %>Bid: <%= player.bid %><% end %>]</span>
+      <span><%= if player.bid != nil do %>Bid: <%= player.bid %><% end %></span>
     </div>
   <% end %>
   </div>
 
-  <hr>
-  <h2>Round <%= game.round %></h1>
-  <h2>State <%= Atom.to_string(game.state) %></h1>
-  <h2>Queue</h2>
-  <ol>
-    <%= for player_name <- game.queue do %>
-    <li> <%= player_name %> </li>
-    <% end %>
-  </ol>
-  <hr>
-  <h2>Stack</h2>
-  <div>
+  <div container class="mt-4 p-4">
+  <%= if game.round != 0 do %>
+    <h2>Round <%= game.round %></h1>
     <%= if game.stack != nil do %>
-      Current Stack Trump: <%= Atom.to_string(game.stack.trump) %>
+      <%= if game.stack.trump == :pending do %>
+        <%= active_player %> is selecting a trump color
+      <% else %>
+        Stack Trump: <%= Atom.to_string(game.stack.trump) %>
+      <% end %>
+
       <ol>
-        <%= for {card, player} <- game.stack.current_trick do %>
-          <li><%= to_string(card) %> (<%= player.name %>)</li>
-        <% end %>
+      <%= for {card, player} <- game.stack.current_trick do %>
+        <li><%= to_string(card) %> (<%= player.name %>)</li>
+      <% end %>
       </ol>
     <% end %>
+  <% end %>
+
   </div>
+
+  <div class="flex justify-center gap-2 mt-4">
   <%= if game.state == :bidding do %>
     <h2>Bid</h2>
     <%= for bid <- 0..game.round do %>
-      <button
-        type="submit"
-        hx-post="/game/bid/<%= to_string(bid) %>">
-        <%= bid %>
+      <button type="submit" hx-post="/game/bid/<%= to_string(bid) %>">
+      <%= bid %>
       </button>
     <% end %>
   <% end %>
   <%= if game.state == :trump_pending do %>
-    <h2>Select Trump</h2>
     <%= for suit <- ["red", "blue", "green", "yellow"] do %>
-      <button
-        type="submit"
-        hx-post="/game/set-trump/<%= suit %>">
-        <%= suit %>
+      <button type="submit" hx-post="/game/set-trump/<%= suit %>">
+      <%= suit %>
       </button>
     <% end %>
   <% end %>
-  <h2>Hand</h2>
+  </div>
+
   <div>
     <%= for card <- player.hand do %>
       <button
         type="submit"
+        class="h-24 w-20"
+        color="<%= card.suit %>"
         hx-post="/game/play-card/<%= to_string(card) %>"
-        <%= if game.state != :playing do %>disabled<% end %>> 
+        <%= if game.state != :playing do %>disabled<% end %>
+      >
         <%= to_string(card) %>
       </button>
     <% end %>

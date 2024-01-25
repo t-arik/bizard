@@ -12,8 +12,8 @@ defmodule Bizard.Template do
     EEx.eval_file("views/register.heex")
   end
 
-  def game(game, player) do
-    EEx.eval_file("views/game.heex", game: game, player: player)
+  def game(game, player, active_player) do
+    EEx.eval_file("views/game.heex", game: game, player: player, active_player: active_player)
   end
 
   # EEx.function_from_file(

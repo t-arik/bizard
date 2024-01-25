@@ -25,6 +25,7 @@ defmodule Bizard.Controller.Main do
     if conn.assigns.game != conn.assigns.initial_game do
       Component.Game.set(conn.assigns.game)
       Component.EventPubSub.publish("game-update")
+      IO.inspect(conn.assigns.game)
     end
 
     conn

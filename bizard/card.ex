@@ -37,7 +37,12 @@ defimpl String.Chars, for: Bizard.Card do
   end
 
   def to_string(card = %Bizard.Card{}) do
-    suit_str = String.capitalize(Atom.to_string(card.suit))
+    suit_str =
+      card.suit
+      |> Atom.to_string()
+      |> String.capitalize()
+      |> String.at(0)
+
     suit_str <> " " <> Integer.to_string(card.value)
   end
 end

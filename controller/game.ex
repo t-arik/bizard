@@ -14,10 +14,10 @@ defmodule Bizard.Controller.Game do
 
   get "/" do
     %{game: game, player: player} = conn.assigns
-
+    active_player = Game.get_active_player(game)
     view =
       game
-      |> Bizard.Template.game(player)
+      |> Bizard.Template.game(player, active_player)
       |> Bizard.Template.index()
 
     send_resp(conn, 200, view)
@@ -94,6 +94,8 @@ defmodule Bizard.Controller.Game do
   post "/bid/:bid" do
     %{game: game, player: player} = conn.assigns
 
+    IO.inspect(Game.get_active_player(game), label: "active player")
+    IO.inspect(player.name, label: "requesting player")
     if Game.get_active_player(game) == player.name do
       game =
         game
@@ -109,5 +111,9 @@ defmodule Bizard.Controller.Game do
     else
       send_resp(conn, 400, "Not your turn")
     end
+  end
+
+  match _ do
+    send_resp(conn, 404, "Not found")
   end
 end
