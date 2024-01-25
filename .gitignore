@@ -26,3 +26,4 @@ bizard-*.tar
 /tmp/
 
 .DS_Store
+.tool-versions
