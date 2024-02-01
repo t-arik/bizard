@@ -14,20 +14,20 @@ defmodule Bizard.Plug.Auth do
   end
 
   def call(conn, redirect: url) do
-    conn = fetch_cookies(conn)
-    username = Map.get(conn.cookies, "user-id")
-
-    if username != nil do
-      player = Bizard.Component.Game.get() |> Bizard.Game.get_player(username)
-
+    with conn <- fetch_cookies(conn),
+         %{"user-id" => username} <- conn.cookies,
+         player = %Bizard.Player{} <-
+           Bizard.Component.Game.get()
+           |> Bizard.Game.get_player(username) do
       conn
       |> assign(:username, username)
       |> assign(:player, player)
     else
-      conn
-      |> put_resp_header("location", url)
-      |> send_resp(302, "")
-      |> halt()
+      _ ->
+        conn
+        |> put_resp_header("location", url)
+        |> send_resp(302, "")
+        |> halt()
     end
   end
 end

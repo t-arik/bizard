@@ -7,8 +7,11 @@ defmodule Bizard do
 
   @impl true
   def start(_type, _args) do
-    {:ok, port} = System.fetch_env("PORT")
-    port = String.to_integer(port)
+    port =
+      case System.fetch_env("PORT") do
+        {:ok, port} -> String.to_integer(port)
+        _ -> 2000
+      end
 
     webserver = {
       Plug.Cowboy,

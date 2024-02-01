@@ -112,7 +112,7 @@ defmodule Bizard.Game do
   @spec set_trump(t(), atom()) :: t()
   def set_trump(game = %Game{state: :trump_pending}, suit) do
     stack = Stack.set_trump(game.stack, suit)
-    %Game{game | stack: stack, state: :playing}
+    %Game{game | stack: stack, state: :bidding}
   end
 
   @spec bid(t(), Player.t(), integer()) :: t()

@@ -14,8 +14,9 @@ defmodule Bizard.Controller.Register do
   get "/" do
     conn = fetch_cookies(conn)
     user = Map.get(conn.cookies, "user-id")
+    game = Bizard.Component.Game.get()
 
-    if user != nil do
+    if user != nil and Game.get_player(game, user) != nil do
       conn
       |> put_resp_header("location", "/game")
       |> send_resp(302, "")
