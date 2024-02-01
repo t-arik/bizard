@@ -159,14 +159,16 @@ defmodule Bizard.Game do
 
     moves =
       Enum.filter(player.hand, fn
-        Card.wizard() -> true
-        Card.jester() -> true
         %Card{suit: ^trump} -> true
         %Card{suit: ^to_serve} -> true
         _ -> false
       end)
 
-    if Enum.empty?(moves), do: player.hand, else: moves
+    if Enum.empty?(moves) do
+      player.hand
+    else
+      [Card.wizard(), Card.jester() | moves]
+    end
   end
 
   @spec conclude_trick(t()) :: t()

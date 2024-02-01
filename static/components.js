@@ -1,4 +1,8 @@
 function apply_styles() {
+	function update_classlist(selector, callback) {
+		let elements = document.querySelectorAll(selector);
+		elements.forEach(element => callback(element.classList));
+	}
 	let button_class = [
 		'item-center',
 		'rounded-md',
@@ -22,39 +26,19 @@ function apply_styles() {
 		'py-5'
 	];
 
-	let buttons = document.querySelectorAll('button');
-	buttons.forEach(button => button.classList.add(...button_class));
+	update_classlist('button', list => list.add(...button_class));
+	update_classlist('input', list => list.add(...input_class));
+	update_classlist('div[container]', list => list.add(...container_class));
 
-	let inputs = document.querySelectorAll('input');
-	inputs.forEach(input => input.classList.add(...input_class));
-
-	let containers = document.querySelectorAll('div[container]');
-	containers.forEach(container => container.classList.add(...container_class));
-
-	containers = document.querySelectorAll('div[container][focus]');
-	containers.forEach(container => {
-		container.classList.replace('border-zinc-700', 'border-white')
-	});
-
-	let green_cards = document.querySelectorAll('button[color=green]')
-	green_cards.forEach(card => {
-		card.classList.replace('border-zinc-700', 'border-green-700')
-	});
-
-	let red_cards = document.querySelectorAll('button[color=red]')
-	red_cards.forEach(card => {
-		card.classList.replace('border-zinc-700', 'border-red-700')
-	});
-
-	let blue_cards = document.querySelectorAll('button[color=blue]')
-	blue_cards.forEach(card => {
-		card.classList.replace('border-zinc-700', 'border-blue-700')
-	});
-
-	let yellow_cards = document.querySelectorAll('button[color=yellow]')
-	yellow_cards.forEach(card => {
-		card.classList.replace('border-zinc-700', 'border-yellow-700')
-	});
+	update_classlist('div[container][focus]', list => list.replace('border-zinc-700', 'border-white'));
+	update_classlist('button[color=green]', list => list.replace('border-zinc-700', 'border-green-700'));
+	update_classlist('button[color=red]', list => list.replace('border-zinc-700', 'border-red-700'));
+	update_classlist('button[color=yellow]', list => list.replace('border-zinc-700', 'border-yellow-700'));
+	update_classlist('button[color=blue]', list => list.replace('border-zinc-700', 'border-blue-700'));
+	update_classlist('button[disabled][color=green]', list => list.replace('border-green-700', 'border-green-900'));
+	update_classlist('button[disabled][color=red]', list => list.replace('border-red-700', 'border-red-900'));
+	update_classlist('button[disabled][color=yellow]', list => list.replace('border-yellow-700', 'border-yellow-900'));
+	update_classlist('button[disabled][color=blue]', list => list.replace('border-blue-700', 'border-blue-900'));
 }
 
 apply_styles();

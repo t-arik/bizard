@@ -13,7 +13,11 @@
     >
       <span><%= player.name %></span>
       <span><%= player.points %> points</span>
-      <span><%= if player.bid != nil do %>Bid: <%= player.bid %><% end %></span>
+      <span>
+      <%= if player.bid != nil do %>
+        Bid: (<%= length(player.tricks) %>/<%= player.bid %>)
+      <% end %>
+    </span>
     </div>
   <% end %>
   </div>
@@ -35,38 +39,38 @@
       </ol>
     <% end %>
   <% end %>
-
   </div>
 
-  <div class="flex justify-center gap-2 mt-4">
-  <%= if game.state == :bidding do %>
-    <h2>Bid</h2>
-    <%= for bid <- 0..game.round do %>
-      <button type="submit" hx-post="/game/bid/<%= to_string(bid) %>">
-      <%= bid %>
-      </button>
+  <div class="flex items-center flex-col gap-4">
+    <div class="flex justify-center gap-2 mt-4">
+    <%= if game.state == :bidding do %>
+      <%= for bid <- 0..game.round do %>
+        <button type="submit" hx-post="/game/bid/<%= to_string(bid) %>">
+        <%= bid %>
+        </button>
+      <% end %>
     <% end %>
-  <% end %>
-  <%= if game.state == :trump_pending do %>
-    <%= for suit <- ["red", "blue", "green", "yellow"] do %>
-      <button type="submit" hx-post="/game/set-trump/<%= suit %>">
-      <%= suit %>
-      </button>
+    <%= if game.state == :trump_pending do %>
+      <%= for suit <- ["red", "blue", "green", "yellow"] do %>
+        <button type="submit" hx-post="/game/set-trump/<%= suit %>">
+        <%= suit %>
+        </button>
+      <% end %>
     <% end %>
-  <% end %>
-  </div>
+    </div>
 
-  <div>
-    <%= for card <- player.hand do %>
-      <button
-        type="submit"
-        class="h-24 w-20"
-        color="<%= card.suit %>"
-        hx-post="/game/play-card/<%= to_string(card) %>"
-        <%= if game.state != :playing do %>disabled<% end %>
-      >
-        <%= to_string(card) %>
-      </button>
-    <% end %>
+    <div>
+      <%= for card <- player.hand do %>
+        <button
+          type="submit"
+          class="h-24 w-20"
+          color="<%= card.suit %>"
+          hx-post="/game/play-card/<%= to_string(card) %>"
+          <%= if game.state != :playing do %>disabled<% end %>
+        >
+          <%= to_string(card) %>
+        </button>
+      <% end %>
+    </div>
   </div>
 </div>
