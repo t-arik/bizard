@@ -1,5 +1,9 @@
 <% require Bizard.Game %>
-<div hx-get="." hx-trigger="sse:game-update" class="text-white">
+<div
+  hx-get="."
+  hx-trigger="sse:game-update"
+  class="text-white flex flex-col place-items-center gap-4"
+>
   <%= if Bizard.Game.is_ready_to_deal(game) do %>
     <button type="submit" hx-post="/game/start">Start</button>
   <% end %>
@@ -22,7 +26,7 @@
   <% end %>
   </div>
 
-  <div container class="mt-4 p-4">
+  <div container class="p-4">
   <%= if game.round != 0 do %>
     <h2>Round <%= game.round %></h1>
     <%= if game.stack != nil do %>
@@ -38,39 +42,46 @@
       <% end %>
       </ol>
     <% end %>
+  <% else %>
+    Waiting for players...
   <% end %>
   </div>
 
-  <div class="flex items-center flex-col gap-4">
-    <div class="flex justify-center gap-2 mt-4">
-    <%= if game.state == :bidding do %>
-      <%= for bid <- 0..game.round do %>
-        <button type="submit" hx-post="/game/bid/<%= to_string(bid) %>">
-        <%= bid %>
-        </button>
-      <% end %>
+  <div class="flex justify-center gap-2">
+  <%= if game.state == :bidding do %>
+    <h2>Bid</h2>
+    <%= for bid <- 0..game.round do %>
+      <button
+        type="submit"
+        hx-post="/game/bid/<%= to_string(bid) %>"
+        <%= if active_player != player.name do %>disabled<% end %>
+      >
+      <%= bid %>
+      </button>
     <% end %>
-    <%= if game.state == :trump_pending do %>
-      <%= for suit <- ["red", "blue", "green", "yellow"] do %>
-        <button type="submit" hx-post="/game/set-trump/<%= suit %>">
-        <%= suit %>
-        </button>
-      <% end %>
+  <% end %>
+  <%= if game.state == :trump_pending do %>
+    <%= for suit <- ["red", "blue", "green", "yellow"] do %>
+      <button type="submit" hx-post="/game/set-trump/<%= suit %>">
+      <%= suit %>
+      </button>
     <% end %>
-    </div>
+  <% end %>
+  </div>
 
-    <div>
-      <%= for card <- player.hand do %>
-        <button
-          type="submit"
-          class="h-24 w-20"
-          color="<%= card.suit %>"
-          hx-post="/game/play-card/<%= to_string(card) %>"
-          <%= if game.state != :playing do %>disabled<% end %>
-        >
-          <%= to_string(card) %>
-        </button>
-      <% end %>
-    </div>
+  <div>
+    <%= for card <- player.hand do %>
+      <button
+        type="submit"
+        class="h-24 w-20"
+        color="<%= card.suit %>"
+        hx-post="/game/play-card/<%= to_string(card) %>"
+        <%= unless game.state == :playing do %>disabled<% end %>
+        <%= unless active_player == player.name do %>disabled<% end %>
+        <%= unless card in Bizard.Game.legal_moves(game.stack, player) do %>disabled<% end %>
+      >
+        <%= to_string(card) %>
+      </button>
+    <% end %>
   </div>
 </div>

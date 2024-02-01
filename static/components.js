@@ -29,16 +29,22 @@ function apply_styles() {
 	update_classlist('button', list => list.add(...button_class));
 	update_classlist('input', list => list.add(...input_class));
 	update_classlist('div[container]', list => list.add(...container_class));
+	update_classlist('button[disabled]', list => list.remove('bg-zinc-800'));
 
-	update_classlist('div[container][focus]', list => list.replace('border-zinc-700', 'border-white'));
-	update_classlist('button[color=green]', list => list.replace('border-zinc-700', 'border-green-700'));
-	update_classlist('button[color=red]', list => list.replace('border-zinc-700', 'border-red-700'));
-	update_classlist('button[color=yellow]', list => list.replace('border-zinc-700', 'border-yellow-700'));
-	update_classlist('button[color=blue]', list => list.replace('border-zinc-700', 'border-blue-700'));
-	update_classlist('button[disabled][color=green]', list => list.replace('border-green-700', 'border-green-900'));
-	update_classlist('button[disabled][color=red]', list => list.replace('border-red-700', 'border-red-900'));
-	update_classlist('button[disabled][color=yellow]', list => list.replace('border-yellow-700', 'border-yellow-900'));
-	update_classlist('button[disabled][color=blue]', list => list.replace('border-blue-700', 'border-blue-900'));
+	function add_border_color(selector, color, opacity = '00') {
+		update_classlist(selector, list => {
+			list.replace('border-zinc-700', 'border-' + color);
+			list.add('shadow-' + color + '/' + opacity);
+		});
+	}
+
+	add_border_color('div[container][focus]', 'white');
+	add_border_color('button[color=green]', 'green-500', '20');
+	add_border_color('button[color=red]', 'red-500', '20');
+	add_border_color('button[color=blue]', 'blue-500', '20');
+	add_border_color('button[color=yellow]', 'yellow-500', '20');
+	add_border_color('button[color=wizard]', 'zinc-400', '20');
+	add_border_color('button[color=jester]', 'zinc-400', '20');
 }
 
 apply_styles();

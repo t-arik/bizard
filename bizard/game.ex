@@ -153,7 +153,7 @@ defmodule Bizard.Game do
   end
 
   @spec legal_moves(Stack.t(), Player.t()) :: [Card.t()]
-  defp legal_moves(stack = %Stack{}, player = %Player{}) do
+  def legal_moves(stack = %Stack{}, player = %Player{}) do
     trump = stack.trump
     to_serve = stack.to_serve
 
