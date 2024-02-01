@@ -1,21 +1,13 @@
 # Bizard
 
-**TODO: Add description**
+A card game inpired by [Wizard](https://en.wikipedia.org/wiki/Wizard_(card_game))
+and written in Elixir
 
-## Installation
+## Running
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `bizard` to your list of dependencies in `mix.exs`:
+The game's server requires Elixir v1.16
 
-```elixir
-def deps do
-  [
-    {:bizard, "~> 0.1.0"}
-  ]
-end
+```sh
+mix deps.get
+mix run --no-halt
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/bizard>.
-
